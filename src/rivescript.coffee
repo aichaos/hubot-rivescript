@@ -24,6 +24,9 @@ RiveScript = require "rivescript"
 
 module.exports = (robot) ->
 
+  if robot.brain?.data?
+      rivedata = robot.brain.data.rivescript ?= {}
+
   # Configuration parameters.
   brain  = process.env.HUBOT_RIVESCRIPT_BRAIN or "./brain"
   prefix = if process.env.HUBOT_RIVESCRIPT_PREFIX then "#{process.env.HUBOT_RIVESCRIPT_PREFIX}\\s+" else "\\s*"
@@ -36,12 +39,23 @@ module.exports = (robot) ->
   @bot = new RiveScript({
     utf8: utf8
   })
+  
   @bot.loadDirectory(brain, ->
-    @bot.sortReplies()
+    rivebot = @bot
+    rivebot.sortReplies()
+
+    # Load user variables from hubot brain into rivebot, when ready
+    robot.brain.on 'loaded', =>
+      rivedata = robot.brain.data.rivescript ?= {}
+      rivebot.setUservars user, data for user, data of rivedata
 
     robot.respond regexp, (res) ->
       reply = bot.reply(res.message.user.name, res.match[1])
-      res.send reply
+      if reply
+        res.send reply
+        # Save user variables to hubot brain
+        rivedata[res.message.user.name] = rivebot.getUservars(res.message.user.name)
+        
   , (err) ->
     console.error "Couldn't load RiveScript replies: #{err}"
   )
