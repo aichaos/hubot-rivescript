@@ -26,22 +26,37 @@ Then add **hubot-rivescript** to your `external-scripts.json`:
 
 Use the following environment variables to configure your RiveScript bot:
 
-* **HUBOT_RIVESCRIPT_BRAIN** - the path on disk to a directory containing
-  RiveScript files (`*.rive`). The default is to look in a folder named
-  "./brain" relative to the current working directory.
-* **HUBOT_RIVESCRIPT_PREFIX** - by default, this script responds to *all*
-  messages directed at the bot (by mentioning its username). This can overlap
-  with other scripts you may have configured; so you can set this variable to
-  require an additional prefix. For example, with
-  `HUBOT_RIVESCRIPT_PREFIX="rs"` a user must say "hubot rs hello" to get the
-  RiveScript bot to respond rather than just "hubot hello".
-* **HUBOT_RIVESCRIPT_UTF8** - enable or disable UTF-8 mode in RiveScript. By
-  default this is **off** and you can enable it by doing
-  `HUBOT_RIVESCRIPT_UTF8=1`.
+* **HUBOT_RIVESCRIPT_BRAIN** (default `./brain`)
 
-  By default all punctuation and symbols are stripped from the user's input
-  message, and RiveScript triggers can't contain Unicode symbols. Enable UTF-8
-  mode to lift these restrictions if you have to support non-English users.
+  The path on disk to a directory containing RiveScript files (`*.rive`).
+* **HUBOT_RIVESCRIPT_PREFIX** (default blank)
+
+  By default, this script responses to *all* messages directed at the bot (by
+  mentioning its username). This can overlap with other scripts you may have
+  configured; so you can set this variable to require an additional prefix.
+  For example, with `HUBOT_RIVESCRIPT_PREFIX="rs"` a user must say
+  "hubot rs hello" to get the RiveScript bot to respond.
+* **HUBOT_RIVESCRIPT_UTF8** (default `0`)
+
+  Enable UTF-8 support within RiveScript. By default, all punctuation and
+  symbols are stripped from the user's input message, and RiveScript triggers
+  can't contain Unicode symbols. Enable UTF-8 mode to lift these restrictions
+  if you want to support non-English users.
+
+  Enable it with `HUBOT_RIVESCRIPT_UTF8=1`
+* **HUBOT_RIVESCRIPT_SYNC** (default `0`)
+
+  Use synchronous replies instead of async ones. By default, replies are async
+  and you can change that by doing `HUBOT_RIVESCRIPT_SYNC=1`
+
+  Under the hood, this is the difference between using `rs.replyAsync()`
+  (default) and `rs.reply()`; in the latter mode, object macros aren't allowed
+  to return promises but must return string results.
+* **HUBOT_RIVESCRIPT_DEBUG** (default `0`)
+
+  Set this variable to `1` to enable debug mode within RiveScript. This will
+  log verbose internal information to the console and may be useful to help
+  debug loading or matching errors within RiveScript.
 
 ## Sample Interaction
 

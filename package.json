@@ -1,7 +1,7 @@
 {
   "name": "hubot-rivescript",
   "description": "Provides a RiveScript chatbot personality for Hubot.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Noah Petherbridge <root@kirsle.net>",
   "license": "MIT",
   "keywords": "hubot, hubot-scripts, rivescript",

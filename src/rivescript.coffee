@@ -23,39 +23,49 @@
 RiveScript = require "rivescript"
 
 module.exports = (robot) ->
-
-  if robot.brain?.data?
-      rivedata = robot.brain.data.rivescript ?= {}
-
   # Configuration parameters.
+  debug  = "#{process.env.HUBOT_RIVESCRIPT_DEBUG}" is "1" or false
   brain  = process.env.HUBOT_RIVESCRIPT_BRAIN or "./brain"
   prefix = if process.env.HUBOT_RIVESCRIPT_PREFIX then "#{process.env.HUBOT_RIVESCRIPT_PREFIX}\\s+" else "\\s*"
   utf8   = "#{process.env.HUBOT_RIVESCRIPT_UTF8}" is "1" or false
+  sync   = "#{process.env.HUBOT_RIVESCRIPT_SYNC}" is "1" or false
 
   # The matcher regexp.
   regexp = new RegExp("#{prefix}(.*)", "i")
 
   # Initialize the RiveScript brain.
   @bot = new RiveScript({
+    debug: debug,
     utf8: utf8
   })
-  
+
+  # Save user variables after each interaction.
+  @saveUservars = (user) ->
+    userData = robot.brain.get("rivescript") or {}
+    userData[user.name] = @bot.getUservars(user.name)
+    robot.brain.set("rivescript", userData)
+
   @bot.loadDirectory(brain, ->
-    rivebot = @bot
-    rivebot.sortReplies()
+    @bot.sortReplies()
 
     # Load user variables from hubot brain into rivebot, when ready
     robot.brain.on 'loaded', =>
-      rivedata = robot.brain.data.rivescript ?= {}
-      rivebot.setUservars user, data for user, data of rivedata
+      userData = robot.brain.get("rivescript") or {}
+      for user, data of userData
+        @bot.setUservars user, data
 
-    robot.respond regexp, (res) ->
-      reply = bot.reply(res.message.user.name, res.match[1])
-      if reply
-        res.send reply
-        # Save user variables to hubot brain
-        rivedata[res.message.user.name] = rivebot.getUservars(res.message.user.name)
-        
+    robot.respond regexp, (res) =>
+      if sync
+        reply = @bot.reply(res.message.user.name, res.match[1], @)
+        if reply
+          res.send reply
+          @saveUservars(res.message.user)
+      else
+        reply = @bot.replyAsync(res.message.user.name, res.match[1], @).then (reply) ->
+          if reply
+            res.send reply
+            @saveUservars(res.message.user)
+
   , (err) ->
     console.error "Couldn't load RiveScript replies: #{err}"
   )
