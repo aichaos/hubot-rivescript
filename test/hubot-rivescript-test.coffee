@@ -3,7 +3,7 @@ chai = require 'chai'
 
 expect = chai.expect
 
-helper = new Helper('../src/hubot-rivescript.coffee')
+helper = new Helper('../src/rivescript.coffee')
 
 describe 'hubot-rivescript', ->
   beforeEach ->
